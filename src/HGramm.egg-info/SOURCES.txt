@@ -1,0 +1,9 @@
+setup.py
+HGramm/__init__.py
+HGramm/filter_textarea.py
+HGramm/preprocessing.py
+HGramm.egg-info/PKG-INFO
+HGramm.egg-info/SOURCES.txt
+HGramm.egg-info/dependency_links.txt
+HGramm.egg-info/not-zip-safe
+HGramm.egg-info/top_level.txt
