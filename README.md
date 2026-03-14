@@ -1,7 +1,7 @@
 
 # HGramm
 
-HGramm(Headline classifier for Grammar)는 한글 문법 요소를 바탕으로 표제어(headline) 문장을 찾는 분류기입니다.    
+HGramm(Headline classifier by Grammar)는 한글 문법 요소를 바탕으로 표제어(headline) 문장을 찾는 분류기입니다.    
 JusText에서는 웹문서에서 유의미한 정보를 수집할 때, 불용어가 많은 문장은 본문에 가깝다는 text heuristic을 사용합니다. 이 개념을 한글 문법에 맞춰 응용한 표제어(비본문)-본문을 구분하는 분류기를 만들어보았습니다.
   
 **참고사항**
