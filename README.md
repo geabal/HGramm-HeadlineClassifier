@@ -111,19 +111,16 @@ print(f'is_head socre: {is_head}\n')
 '''
 [output]
 
-# is_head는 표제어에 가까운 문장일수록 1에 가까운 값을 갖습니다.
-sent = df_textarea.loc[0,'text'][0]
-is_head = df_textarea.loc[0,'is_head'][0]
-print('[표제어 문장]\nis_head는 표제어에 가까운 문장일수록 1에 가까운 값을 갖습니다.')
-print(f'문장: {sent}')
-print(f'is_head socre: {is_head}\n')
+[표제어 문장]
+is_head는 표제어에 가까운 문장일수록 1에 가까운 값을 갖습니다.
+문장: LG유플러스, 서울 지하철 9호선 1·2·3단계 LTE-R 구축 완료
+is_head socre: 0.9538815298700234
 
-# 반대로 본문 문장에 가까울수록 0에 가까운 값을 가집니다.
-sent = df_textarea.loc[0,'text'][5]
-is_head = df_textarea.loc[0,'is_head'][5]
-print('[본문 문장]\n반대로 본문 문장에 가까울수록 is_head는 0에 가까운 값을 가집니다.')
-print(f'문장: {sent}')
-print(f'is_head socre: {is_head}\n')
+[본문 문장]
+반대로 본문 문장에 가까울수록 is_head는 0에 가까운 값을 가집니다.
+문장: LG유플러스가 서울시메트로9호선(주), 서울교통공사 9호선운영부문과 함께 서울 지하철 9호선 전 구간에 ‘LTE-R(철도통합무선망)’ 구축을 완료했다고 16일 밝혔다.
+is_head socre: 0.0066271301405524275
+
 
 '''
 ```
