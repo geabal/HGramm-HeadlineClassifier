@@ -64,7 +64,7 @@ class HGramm:
         self.sent_df = pd.DataFrame(data=data)
         return
 
-    def get_textarea(self, doc_list:List[Dict], text_col:str, id_col:str):
+    def get_textarea(self, doc_list:List[Dict], text_col:str, id_col:str, is_llm:bool=False):
         '''
         문서 리스트를 입력받아, 각 문서의 textarea를 List[tuple]로 반환합니다.
         textarea는 연속된 표제어 사이에 있는 연속된 본문으로 정의합니다. 
@@ -80,12 +80,54 @@ class HGramm:
         self.sent_df['is_head'] = is_head
         #문장 별 dataframe을 문서 별 dataframe으로 변환
         self.doc_df = self.sent2doc()
-
-        # textarea 영역 선출 
-        self.doc_df['textarea_range'] = self.doc_df.apply(self._cal_textarea, axis=1)
-        self.doc_df['textarea'] = self.doc_df.apply(self._extract_textarea, axis=1)
+        if is_llm:
+            # textarea 영역 선출
+            self.doc_df['textarea_range'] = self.doc_df.apply(self._cal_textarea, axis=1)
+            self.doc_df['textarea'] = self.doc_df.apply(self._extract_textarea, axis=1)
+        else:
+            # textarea 영역 선출
+            self.doc_df['textarea_range'] = self.doc_df.apply(self._cal_textarea_nollm, axis=1)
+            self.doc_df['textarea'] = self.doc_df.apply(self._extract_textarea, axis=1)
 
         return self.doc_df
+
+    def _cal_textarea_nollm(self, row):
+        doc = row[self.text_col]
+        headh = row['is_head']
+        meanPooling = self.getMeanPooling(is_head=headh)
+        start_ta = self.get1to0(meanPooling)
+        end_ta = self.get0to1(meanPooling, start=start_ta[0])
+
+        # 만약 본문 영역으로 보이는 부분을 못 찾은 경우, [0,0] 반환
+        if start_ta[0] == -1 or end_ta[0] == -1:
+            return [0, 0]
+
+        start_h = headh[start_ta[0]:start_ta[1]]
+        end_h = headh[end_ta[0]:end_ta[1]]
+        # textarea_range 추출
+        textarea_range = self.getTextAreaRange_nollm(start_h, end_h, start_ta, end_ta)
+        return textarea_range
+
+    def getTextAreaRange_nollm(self,start_h, end_h, start_ta, end_ta):
+        '''
+        가장 headline일 확률이 높은 곳을 기준으로 본문-비본문 전환점을 찾는다
+        모든 문장의 is_head가 0.25 미만이면 전부 본문으로 본다. 만약 is_head가 0.25보다 큰 지점이 여러 개 있을 경우, 가장 안쪽에 있는 문장을 전환점으로 본다.
+        '''
+        textarea = [-1, -1]
+        for i, is_head in enumerate(start_h):
+            if is_head > 0.25:
+                textarea[0] = start_ta[0]+i
+            elif i == len(start_h) -1 :
+                textarea[0] = start_ta[0]
+
+        for i, is_head in enumerate(end_h):
+            if is_head>0.25:
+                textarea[1] = end_ta[0]+i
+                break
+            elif i == len(end_h) - 1:
+                textarea[1] = end_h[1]
+
+        return textarea
     
     def _cal_textarea(self, row):
         doc = row[self.text_col]
