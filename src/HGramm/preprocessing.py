@@ -16,5 +16,7 @@ def clean_text(text):
 
     # 3. 연속된 공백 하나로 합치기 및 양끝 공백 제거
     text = re.sub(r'\s+', ' ', text).strip()
-
-    return text
+    if not text:
+        return ""
+    else:
+        return str(text)
