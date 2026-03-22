@@ -100,7 +100,7 @@ class HGramm:
 
         # 만약 본문 영역으로 보이는 부분을 못 찾은 경우, [0,0] 반환
         if start_ta[0] == -1 or end_ta[0] == -1:
-            return [0, 0]
+            return [0, -1]
 
         start_h = headh[start_ta[0]:start_ta[1]]
         end_h = headh[end_ta[0]:end_ta[1]]
@@ -116,19 +116,19 @@ class HGramm:
         textarea = [-1, -1]
         for i, is_head in enumerate(start_h):
             if is_head > 0.25:
-                textarea[0] = start_ta[0]+i
-            elif i == len(start_h) -1 :
+                textarea[0] = start_ta[0]+i+1
+            elif i == len(start_h) -1 and textarea[0]==-1:
                 textarea[0] = start_ta[0]
 
         for i, is_head in enumerate(end_h):
             if is_head>0.25:
-                textarea[1] = end_ta[0]+i
+                textarea[1] = end_ta[0]+i -1
                 break
-            elif i == len(end_h) - 1:
-                textarea[1] = end_h[1]
+            elif i == len(end_h) - 1 and textarea[1]==-1:
+                textarea[1] = end_h[1] -1
 
         return textarea
-    
+
     def _cal_textarea(self, row):
         doc = row[self.text_col]
         headh = row['is_head']
@@ -174,7 +174,7 @@ class HGramm:
         '''
         checkpoint = -1
         for i in range(len(pooling)):
-            if pooling[i] < 0.2:
+            if pooling[i] < 0.3:
                 checkpoint = i 
                 break
         start = checkpoint 
@@ -290,6 +290,8 @@ class HGramm:
         '''
         # text cleaning
         self.sent_df['sent'] = self.sent_df['sent'].apply(clean_text)
+        # 길이가 0인 문장 제거
+        self.sent_df = self.sent_df[self.sent_df['sent']!=""]
 
         return
     
@@ -302,6 +304,10 @@ class HGramm:
         self.sent_df = self._add_pos(self.sent_df)
         # pos를 바탕으로 파생변수 추가
         self.sent_df = self._addSentInfo(self.sent_df)
+        # sentdf 후처리
+        # 지나치게 토큰 수가 적은 문장 제거
+        self.sent_df = self.sent_df[self.sent_df['num_token']>3]
+        self.sent_df.reset_index(drop=True, inplace=True)
         # 예측에 필요한 column들만 남기기
         features = ['SN', 'SC', 'SY', 'SF', 'NNP', 'NNG', 'NNBC', 'JKB', 'VV', 'ETM', 'EC',
        'EF', 'JX', 'num_token', 'num_josa', 'num_eomi', 'num_noun',
@@ -337,6 +343,7 @@ class HGramm:
 
             pos_data.append(pos_dict)
 
+        res.reset_index(drop=True, inplace=True)
         pos_df = pd.DataFrame(pos_data)
         res = pd.concat([res, pos_df], axis=1)
         res.fillna(0, inplace=True)
